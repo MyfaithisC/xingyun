@@ -53,7 +53,23 @@
         </where>
         ORDER BY code
     </select>
-    <select id="selector" resultType="com.lframework.xingyun.basedata.entity.StoreCenter"></select>
+    <select id="selector" resultType="com.lframework.xingyun.basedata.entity.StoreCenter">
+            <include refid="SroreCenterDto_sql"/>
+            <where>
+                <if test="vo != null">
+                    <if test="vo.code != null and vo.code != ''">
+                        AND code = #{vo.code}
+                    </if>
+                    <if test="vo.name != null and vo.name != ''">
+                        AND name LIKE CONCAT('%', #{vo.name}, '%')
+                    </if>
+                    <if test="vo.available != null">
+                        AND available = #{vo.available}
+                    </if>
+                </if>
+            </where>
+            ORDER BY code
+    </select>
 
 
 </mapper>
