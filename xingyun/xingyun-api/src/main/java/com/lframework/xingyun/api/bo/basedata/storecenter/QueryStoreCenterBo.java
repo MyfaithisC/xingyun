@@ -87,8 +87,10 @@ public class QueryStoreCenterBo extends BaseBo<StoreCenter> {
 
         IUserService userService = ApplicationUtil.getBean(IUserService.class);
 
-        UserDto createBy = userService.findById(this.getCreateBy());
-        UserDto updateBy = userService.findById(this.getUpdateBy());
+//        UserDto createBy = userService.findById(this.getCreateBy());
+//        UserDto updateBy = userService.findById(this.getUpdateBy());
+        UserDto createBy = userService.findById("1");
+        UserDto updateBy = userService.findById("1");
         this.setCreateBy(createBy.getName());
         this.setUpdateBy(updateBy.getName());
     }

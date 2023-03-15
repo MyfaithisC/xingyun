@@ -18,8 +18,11 @@ import com.lframework.starter.mybatis.resp.PageResult;
 import com.lframework.starter.mybatis.utils.OpLogUtil;
 import com.lframework.starter.mybatis.utils.PageHelperUtil;
 import com.lframework.starter.mybatis.utils.PageResultUtil;
+import com.lframework.starter.web.utils.EnumUtil;
 import com.lframework.starter.web.utils.IdUtil;
+import com.lframework.xingyun.basedata.entity.Customer;
 import com.lframework.xingyun.basedata.entity.StoreCenter;
+import com.lframework.xingyun.basedata.enums.SettleType;
 import com.lframework.xingyun.basedata.mappers.StoreCenterMapper;
 import com.lframework.xingyun.basedata.service.storecenter.IStoreCenterService;
 import com.lframework.xingyun.basedata.vo.storecenter.CreateStoreCenterVo;
@@ -46,10 +49,17 @@ public class StoreCenterServiceImpl extends BaseMpServiceImpl<StoreCenterMapper,
 
     @Override
     public PageResult<StoreCenter> query(Integer pageIndex, Integer pageSize, QueryStoreCenterVo vo) {
+        Assert.greaterThanZero(pageIndex);
+        Assert.greaterThanZero(pageSize);
+        PageHelperUtil.startPage(pageIndex, pageSize);
+        List<StoreCenter> datas = this.query(vo);
 
-       return null;
+        return PageResultUtil.convert(new PageInfo<>(datas));
     }
-
+    @Override
+    public List<StoreCenter> query(QueryStoreCenterVo vo) {
+        return getBaseMapper().query(vo);
+    }
     @Cacheable(value = StoreCenter.CACHE_NAME, key = "#id", unless = "#result == null")
     @Override
     public StoreCenter findById(String id) {
@@ -75,8 +85,38 @@ public class StoreCenterServiceImpl extends BaseMpServiceImpl<StoreCenterMapper,
     @Transactional
     @Override
     public String create(CreateStoreCenterVo vo) {
-
-      return null;
+        //根据仓库的编号进行查询,若code重新就提示重新录入
+        Wrapper<StoreCenter> checkWrapper = Wrappers.lambdaQuery(StoreCenter.class).eq(StoreCenter::getCode, vo.getCode());
+        if (getBaseMapper().selectCount(checkWrapper) > 0) {
+            throw new DefaultClientException("编号重复，请重新输入！");
+        }
+        StoreCenter data = new StoreCenter();
+        data.setId(IdUtil.getId());
+        data.setCode(vo.getCode());
+        data.setName(vo.getName());
+        data.setPeopleNum(vo.getPeopleNum());
+        if (!StringUtil.isBlank(vo.getContact())) {
+            data.setContact(vo.getContact());
+        }
+        if (!StringUtil.isBlank(vo.getTelephone())) {
+            data.setTelephone(vo.getTelephone());
+        }
+        if (!StringUtil.isBlank(vo.getCityId())) {
+            DicCityDto city = dicCityService.findById(vo.getCityId());
+            if (!ObjectUtil.isNull(city)) {
+                data.setCityId(vo.getCityId());
+            }
+        }
+        if (!StringUtil.isBlank(vo.getAddress())) {
+            data.setAddress(vo.getAddress());
+        }
+        data.setAvailable(Boolean.TRUE);
+        data.setDescription(StringUtil.isBlank(vo.getDescription()) ? StringPool.EMPTY_STR : vo.getDescription());
+        getBaseMapper().insert(data);
+        OpLogUtil.setVariable("id", data.getId());
+        OpLogUtil.setVariable("code", vo.getCode());
+        OpLogUtil.setExtra(vo);
+          return data.getId();
     }
 
     @OpLog(type = OpLogType.OTHER, name = "修改仓库，ID：{}, 编号：{}", params = {"#id", "#code"})

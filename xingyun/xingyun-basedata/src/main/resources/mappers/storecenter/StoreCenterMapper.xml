@@ -18,6 +18,42 @@
         <result column="update_by" property="updateBy"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
+    <sql id="SroreCenterDto_sql">
+        select
+               id,
+               code,
+               name,
+               contact,
+               telephone,
+               city_id,
+               address,
+               people_num,
+               available,
+               description,
+                 create_by,
+                 create_time,
+                 update_by,
+                 update_time
+     from base_data_store_center
+    </sql>
+    <select id="query" resultType="com.lframework.xingyun.basedata.entity.StoreCenter">
+        <include refid="SroreCenterDto_sql"/>
+        <where>
+            <if test="vo != null">
+                <if test="vo.code != null and vo.code != ''">
+                    AND code = #{vo.code}
+                </if>
+                <if test="vo.name != null and vo.name != ''">
+                    AND name LIKE CONCAT('%', #{vo.name}, '%')
+                </if>
+                <if test="vo.available != null">
+                    AND available = #{vo.available}
+                </if>
+            </if>
+        </where>
+        ORDER BY code
+    </select>
+    <select id="selector" resultType="com.lframework.xingyun.basedata.entity.StoreCenter"></select>
 
 
 </mapper>

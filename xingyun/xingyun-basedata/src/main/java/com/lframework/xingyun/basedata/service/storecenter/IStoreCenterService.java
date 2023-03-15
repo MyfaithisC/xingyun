@@ -8,6 +8,7 @@ import com.lframework.xingyun.basedata.vo.storecenter.QueryStoreCenterSelectorVo
 import com.lframework.xingyun.basedata.vo.storecenter.QueryStoreCenterVo;
 import com.lframework.xingyun.basedata.vo.storecenter.UpdateStoreCenterVo;
 import java.util.Collection;
+import java.util.List;
 
 public interface IStoreCenterService extends BaseMpService<StoreCenter> {
 
@@ -17,6 +18,9 @@ public interface IStoreCenterService extends BaseMpService<StoreCenter> {
      * @return
      */
     PageResult<StoreCenter> query(Integer pageIndex, Integer pageSize, QueryStoreCenterVo vo);
+
+
+     List<StoreCenter> query(QueryStoreCenterVo vo);
 
     /**
      * 根据ID查询

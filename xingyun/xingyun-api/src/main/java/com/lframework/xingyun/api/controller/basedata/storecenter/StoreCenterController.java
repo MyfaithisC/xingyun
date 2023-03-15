@@ -2,19 +2,26 @@ package com.lframework.xingyun.api.controller.basedata.storecenter;
 
 import com.lframework.common.exceptions.impl.DefaultClientException;
 
+import com.lframework.common.utils.CollectionUtil;
 import com.lframework.starter.mybatis.resp.PageResult;
 
+import com.lframework.starter.mybatis.utils.PageResultUtil;
 import com.lframework.starter.security.controller.DefaultBaseController;
 import com.lframework.starter.web.resp.InvokeResult;
 
+import com.lframework.starter.web.resp.InvokeResultBuilder;
 import com.lframework.starter.web.utils.ExcelUtil;
 import com.lframework.xingyun.api.bo.basedata.storecenter.GetStoreCenterBo;
 import com.lframework.xingyun.api.bo.basedata.storecenter.QueryStoreCenterBo;
 
 import com.lframework.xingyun.api.excel.basedata.storecenter.StoreCenterImportModel;
 
+import com.lframework.xingyun.basedata.entity.StoreCenter;
 import com.lframework.xingyun.basedata.service.storecenter.IStoreCenterService;
 
+import com.lframework.xingyun.basedata.vo.customer.CreateCustomerVo;
+import com.lframework.xingyun.basedata.vo.storecenter.CreateStoreCenterVo;
+import com.lframework.xingyun.basedata.vo.storecenter.QueryStoreCenterVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +36,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -51,10 +62,15 @@ public class StoreCenterController extends DefaultBaseController {
   @ApiOperation("仓库列表")
   @PreAuthorize("@permission.valid('base-data:store-center:query','base-data:store-center:add','base-data:store-center:modify')")
   @GetMapping("/query")
-  public InvokeResult<PageResult<QueryStoreCenterBo>> query() {
+  public InvokeResult<PageResult<QueryStoreCenterBo>> query(@Valid QueryStoreCenterVo vo) {
+    PageResult<StoreCenter>  pageResult = storeCenterService.query(getPageIndex(vo), getPageSize(vo), vo);
+    List<StoreCenter> datas = pageResult.getDatas();
+    List<QueryStoreCenterBo>  results=null;
+    if(!CollectionUtil.isEmpty(datas)){
 
-    throw new DefaultClientException("仓库列表查询待完成!");
-
+      results = datas.stream().map(QueryStoreCenterBo::new).collect(Collectors.toList());
+    }
+    return InvokeResultBuilder.success(PageResultUtil.rebuild(pageResult,results));
   }
 
   /**
@@ -105,9 +121,11 @@ public class StoreCenterController extends DefaultBaseController {
   @ApiOperation("新增仓库")
   @PreAuthorize("@permission.valid('base-data:store-center:add')")
   @PostMapping
-  public InvokeResult<Void> create() {
+  public InvokeResult<Void> create(@Valid CreateStoreCenterVo vo) {
 
-    throw new DefaultClientException("新增仓库待完成!");
+    storeCenterService.create(vo);
+
+    return InvokeResultBuilder.success();
 
   }
 

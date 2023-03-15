@@ -89,6 +89,7 @@ public class QueryCustomerBo extends BaseBo<Customer> {
 
         UserDto createBy = userService.findById(this.getCreateBy());
         UserDto updateBy = userService.findById(this.getUpdateBy());
+
         this.setCreateBy(createBy.getName());
         this.setUpdateBy(updateBy.getName());
     }
